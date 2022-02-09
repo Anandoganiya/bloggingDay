@@ -1,23 +1,36 @@
+import {useState,useEffect} from 'react'
+import {BiArrowBack} from 'react-icons/bi'
 import {imgMountain} from '../public/index';
-const Post = () => {
+
+const Post = ({setOpenPost,DisplayPost}) => {
+    const [showPost,setPost] = useState([]);
+    useEffect(()=>{
+        setPost(DisplayPost)
+    },[])
+
   return(
     <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
+        <button onClick={()=>setOpenPost(false)} className='hover:text-white text-xl'><BiArrowBack/></button>
     <section>
-        
       <article className='bg-white rounded-2xl shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
-          <div className='w-full'>
-              <div className='w-full' >
-                  <img src={imgMountain} alt="post image" className='h-48 w-full object-cover rounded-2xl border-4 border-white xl:h-full'/>
-              </div>
-              <ul className='m-2'>
-                  <li className='m-1 text-lg text-gray-600 font-semibold tracking-wide'>Lifestyle</li>
-                  <li className='text-gray-900 font-bold text-xl mb-2'>Can coffee make you a better developer?</li>
-                  <li className='text-gray-700 text-base'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint dolor maiores sunt, quasi impedit nobis unde adipisci ipsam esse soluta!</li>
-                  <li className='mt-1 mb-1 flex justify-center'><img src={imgMountain} className=' w-10 h-10 rounded-full mr-4' alt="author image" /></li>
-                  <li className='flex justify-center'><p className='"text-gray-900 font-semibold font-sans'>Jimmy Shelby</p></li>
-                  <li className='flex justify-center pb-2'><p className='"text-gray-900 '>10:30 Aug 2022</p></li>
-              </ul>
-          </div>
+        
+        {showPost.map((post)=>{
+              return(
+                 <div className='w-full' key={post.id}>
+                    <div className='w-full' >
+                        <img src={post.featuredImageUrl} alt="post image" className='h-48 w-full object-cover rounded-2xl border-4 border-white xl:h-[30rem]'/>
+                    </div>
+                    <ul className='m-2'>
+                        <li className='m-1 text-lg text-gray-600 font-semibold tracking-wide'>{post.category}</li>
+                        <li className='text-gray-900 font-bold text-xl mb-2'>{post.title}</li>
+                        <li className='text-gray-700 text-base'>{post.content}</li>
+                        <li className='mt-1 mb-1 flex justify-center'><img src={post.author.authorPhoto} className=' w-10 h-10 rounded-full mr-4' alt="author image" /></li>
+                        <li className='flex justify-center'><p className='"text-gray-900 font-semibold font-sans'>{post.author.name}</p></li>
+                        <li className='flex justify-center pb-2'><p className='"text-gray-900 '>10:30 Aug 2022</p></li>
+                    </ul> 
+                </div>
+            );
+                })}
       </article>
 
       <article className='p-2 bg-white rounded-2xl  shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
