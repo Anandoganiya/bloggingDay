@@ -10,6 +10,7 @@ const Modal = ({setToggleModal,showCategories}) => {
   const [inputTitle,setTitle] = useState('')
   const [inputDescription,setInputDescription] = useState('')
   const [inputCategory,setCategory] = useState('')
+  const [catId,setCatId] = useState('')
   const [isError,setIsError] = useState({})
   const [isSubmit,setIsSubmit] = useState(false)
   const [loading,setLoading] = useState(false);
@@ -33,17 +34,28 @@ const Modal = ({setToggleModal,showCategories}) => {
   }
 
   const validate =  () => {
-    const title =   inputTitle;
+    const title = inputTitle;
     const desc = inputDescription;
-    const category = inputCategory;
     const modalError = {};
+    const category =''
+    const categoryId =''
+    const categoryInfo = []
+    if(inputCategory){
+      categoryInfo = showCategories.filter(catId=>(catId.id === inputCategory));
+      const {id,categoryName} = categoryInfo[0];
+      category = categoryName;
+      categoryId = id;
+    }
+    setCategory(category);
+    setCatId(categoryId);
+
     if(!title){
       modalError.titleError = 'title is required';
     }
     if(!desc){
       modalError.descriptionError = 'description is required';
     }
-    if(!category){
+    if(!category && !categoryId){
       modalError.categoryError = 'category is required';
     }
     if(!imageFile){
@@ -79,15 +91,17 @@ const Modal = ({setToggleModal,showCategories}) => {
               id:auth.currentUser.uid || null,
               authorPhoto:auth.currentUser.photoURL,
             },
+            comments:[],
             featuredImageUrl: downloadURL,
             category:inputCategory,
+            categoryId:catId,
             createdAt:serverTimestamp(),
           })
         });
        })
       })();
     }
-  },[isError]);
+  },[isError,imageFile]);
     
   return (
       <div className={`${modal_container}`}>
@@ -106,7 +120,9 @@ const Modal = ({setToggleModal,showCategories}) => {
               <select  onChange={e=>setCategory(e.target.value)} id="category" className='ouline-none bg-white  outline-none cursor-pointer'>
                 <option value="">category</option>
                 {showCategories.map(cat=>{
-                  return <option key={cat.id} value={cat.categoryName}>{cat.categoryName}</option>;
+                  return(
+                    <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+                  );
                 })}
               </select>
               <span className='lg:ml-2 text-lg font-semibold text-[#FF1700] p-1 lg:p-0 lg:inline block mb-3'>*{isError.categoryError}</span>

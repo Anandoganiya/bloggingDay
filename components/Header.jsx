@@ -1,9 +1,7 @@
 import {useState,useRef,useEffect} from 'react';
-// import Link from 'next/link'
 import {categoriesMenu,sideMenuIconsStyles,category,handburgerMenu,top_line,middle_line,bottom_line,
 rotate_top,rotate_bottom,hide_line,sideMenu,profile_info,show} from '../styles/Header.module.css';
 import {AiOutlineHome} from 'react-icons/ai';
-import {MdOutlineEmojiFoodBeverage} from 'react-icons/md';
 import {BsCircle} from 'react-icons/bs';
 import {FaPencilAlt} from 'react-icons/fa'
 import {AiOutlineLogout} from 'react-icons/ai' 
@@ -14,7 +12,17 @@ import { auth,googleProvider} from '../firebase/firebaseConfig';
 import {signInWithPopup,signOut} from 'firebase/auth'
 import moment from 'moment'
 
-const Header = ({setToggleModal,setIsLogIn,setIsAuth,isAuth,showCategories}) => {
+const Header = (props) => {
+    const {
+        setToggleModal,
+        setIsLogIn,
+        setIsAuth,
+        isAuth,
+        showCategories,
+        selectedCategory,
+        setFlag,
+        setOpenPost
+    } = props;
     const [toggle,setToggle] = useState(false);
     const [authorInfo,setAuthorInfo] = useState({authorName:'',authorProfileImage:''}) 
     const sideMenuRef = useRef()
@@ -58,6 +66,9 @@ const Header = ({setToggleModal,setIsLogIn,setIsAuth,isAuth,showCategories}) => 
                 <span className={toggle?`${bottom_line} ${rotate_bottom}`:`${bottom_line}`}></span>
             </div>
             <SideBarMenu 
+             setOpenPost={setOpenPost}
+             setFlag={setFlag}
+             selectedCategory={selectedCategory}
              showCategories={showCategories}
              authorInfo={authorInfo}
              isAuth={isAuth}
@@ -73,13 +84,16 @@ const Header = ({setToggleModal,setIsLogIn,setIsAuth,isAuth,showCategories}) => 
 
 const SideBarMenu = (props) => {
     const {
+        setOpenPost,
+        setFlag,
         sideMenuRef,
         setToggleModal,
         setIsLogIn,isAuth,
         signInWithGoogle,
         setIsAuth,
         authorInfo,
-        showCategories
+        showCategories,
+        selectedCategory
     } = props;
     return (
         // w-60 = 15rem 
@@ -93,10 +107,10 @@ const SideBarMenu = (props) => {
                         <button onClick={()=>{setToggleModal(true)}} className='border  border-blue-600 font-sans text-lg font-semibold px-8 py-2 transition-all duration-100 rounded-full hover:bg-[#548CFF] hover:text-white'>
                         <FaPencilAlt className='inline mr-1'/> Create Post</button></li>:null}
                         <IconContext.Provider value={{size:'2.5rem',className:`${sideMenuIconsStyles}` }}>
-                            <li className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
+                            <li onClick={()=>{setFlag(false);setOpenPost(false);}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
                             {showCategories.map(cat=>{
                                 return(
-                                    <li key={cat.id} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
+                                    <li key={cat.id} onClick={()=>{selectedCategory(cat.id)}} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
                                 );
                             })}
                             {/* <li className='hover:cursor-pointer font-semibold'><SiStylelint className={`m-[1rem] ${category}`}/>Lifestyle</li>
