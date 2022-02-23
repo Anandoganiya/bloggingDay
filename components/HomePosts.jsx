@@ -1,13 +1,11 @@
 import {useEffect,useState} from 'react';
-// import {post} from '../styles/HomePostStyles.module.css'
-import {imgMountain} from '../public/index';
-import moment from 'moment';
 
 const HomePosts = ({setOpenPost,showPosts,setPost}) => {
     const [posts,setShowPost] = useState([]);
     useEffect(()=>{
         setShowPost(showPosts);
     },[posts,showPosts])
+    
   return (
       <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
           <section>

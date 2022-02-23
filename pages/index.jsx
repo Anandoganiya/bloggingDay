@@ -50,9 +50,10 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
        setIsAuth={setIsAuth}
        isAuth={isAuth} 
        setToggleModal={setToggleModal} 
-       setIsLogIn={setIsLogIn}/>
+       setIsLogIn={setIsLogIn}
+       />
        
-      <SearchBarMenu/>
+      <SearchBarMenu showCategories={showCategories}/>
       
       {openPost?<Post isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
       :<HomePosts setPost={setPost} showPosts={flag?categorySelected:showPosts} setOpenPost={setOpenPost}/>}

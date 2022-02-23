@@ -11,8 +11,11 @@ import { IconContext } from "react-icons";
 import { auth,googleProvider} from '../firebase/firebaseConfig';
 import {signInWithPopup,signOut} from 'firebase/auth'
 import moment from 'moment'
+import {db} from '../firebase/firebaseConfig'
+import {collection,addDoc,getDocs} from 'firebase/firestore'
 
 const Header = (props) => {
+    // const authorCollectionRef = collection(db,'author');
     const {
         setToggleModal,
         setIsLogIn,
@@ -26,8 +29,9 @@ const Header = (props) => {
     const [toggle,setToggle] = useState(false);
     const [authorInfo,setAuthorInfo] = useState({authorName:'',authorProfileImage:''}) 
     const sideMenuRef = useRef()
+    
     const signInWithGoogle = () => {
-        signInWithPopup(auth,googleProvider).then((userInfo)=>{
+         signInWithPopup(auth,googleProvider).then((userInfo)=>{
             localStorage.setItem('isAuth',true);
             setIsAuth(true)
             localStorage.setItem('authorName',userInfo.user.displayName)
@@ -37,15 +41,24 @@ const Header = (props) => {
                 authorName:userInfo.user.displayName,
                 authorProfileImage:userInfo.user.photoURL
             });
+           
+
+            //  addDoc(authorCollectionRef,{
+            //     authorName:userInfo.user.displayName,
+            //     authorProfileImage:userInfo.user.photoURL
+            // })
+            
         }).catch((error)=>{
             console.log(error);
         });
     }
+    
     const toggleHamburgerMenu = () => {
         setToggle(!toggle);
         const sideMenu = sideMenuRef.current;
         sideMenu.classList.toggle(`${show}`);
     }
+
     useEffect(() => {
         setAuthorInfo({
             ...authorInfo,
