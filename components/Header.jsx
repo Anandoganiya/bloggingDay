@@ -15,7 +15,6 @@ import {db} from '../firebase/firebaseConfig'
 import {collection,addDoc,getDocs} from 'firebase/firestore'
 
 const Header = (props) => {
-    // const authorCollectionRef = collection(db,'author');
     const {
         setToggleModal,
         setIsLogIn,
@@ -31,7 +30,7 @@ const Header = (props) => {
     const sideMenuRef = useRef()
     
     const signInWithGoogle = () => {
-         signInWithPopup(auth,googleProvider).then((userInfo)=>{
+         signInWithPopup(auth,googleProvider).then(async(userInfo)=>{
             localStorage.setItem('isAuth',true);
             setIsAuth(true)
             localStorage.setItem('authorName',userInfo.user.displayName)
@@ -41,13 +40,20 @@ const Header = (props) => {
                 authorName:userInfo.user.displayName,
                 authorProfileImage:userInfo.user.photoURL
             });
-           
-
-            //  addDoc(authorCollectionRef,{
-            //     authorName:userInfo.user.displayName,
-            //     authorProfileImage:userInfo.user.photoURL
-            // })
-            
+          const authorCollectionRef = collection(db,'author');
+          const users = await getDocs(authorCollectionRef)
+          const allAuthors = users.docs.map((doc)=>({...doc.data(),id:doc.id})) 
+          const res = allAuthors.filter(doc=>{
+              return doc.userId === userInfo.user.uid;
+          })
+          if(res.length === 0){              
+              addDoc(authorCollectionRef,{
+                userId:userInfo.user.uid,
+                email:userInfo.user.email,
+                displayName:userInfo.user.displayName,
+                photoUrl:userInfo.user.photoURL,
+              })
+          }
         }).catch((error)=>{
             console.log(error);
         });

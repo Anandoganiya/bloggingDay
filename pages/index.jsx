@@ -21,9 +21,9 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const [isAuth,setIsAuth] = useState(false);
   const [DisplayPost,setDisplayPost] = useState(null);
   const [categorySelected,setCategorySelected] = useState([])
+  const [selecteAuthor,setSelectedAuthor] = useState([])
   const [flag,setFlag] = useState(false)
   const setPost = (postId) =>{
-    // const post = showPosts.filter(post=> post.id === postId);
     setDisplayPost(postId)
     setOpenPost(true);
   }
@@ -31,6 +31,12 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const selectedCategory = (selectedCategoryId) =>{
     const showCategoryPosts = showPosts.filter(post=> post.categoryId === selectedCategoryId);
     setCategorySelected(showCategoryPosts)
+    setOpenPost(false);
+    setFlag(true)
+  }
+  const selectedAuthor = (selectedAuthorId) =>{
+    const showAuthorPosts = showPosts.filter(post=> post.author.id === selectedAuthorId);
+    setSelectedAuthor(showAuthorPosts)
     setOpenPost(false);
     setFlag(true)
   }
@@ -53,14 +59,14 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
        setIsLogIn={setIsLogIn}
        />
        
-      <SearchBarMenu showCategories={showCategories}/>
+      <SearchBarMenu selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
       {openPost?<Post isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
       :<HomePosts setPost={setPost} showPosts={flag?categorySelected:showPosts} setOpenPost={setOpenPost}/>}
       
       {toggleModal?<Modal showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
       
-      {isLogIn?<LogIn setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};
+      {isLogIn?<LogIn  setIsAuth={setIsAuth} setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};
       {isSignUp?<SignUp setIsSignUp={setIsSignUp} setIsLogIn={setIsLogIn}></SignUp>:null};
       
       <RelatedPostWidget 

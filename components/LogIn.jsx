@@ -1,51 +1,99 @@
 import {useState,useRef,useEffect} from 'react';
 import {modal_container} from '../styles/Modal.module.css'
 import {ImCross} from 'react-icons/im';
+import {signInWithEmailAndPassword} from 'firebase/auth'
+import {collection,addDoc,getDocs} from 'firebase/firestore'
+import {auth,db} from '../firebase/firebaseConfig'
 
-const LogIn = ({setIsLogIn,setIsSignUp}) => {
+const LogIn = ({setIsLogIn,setIsSignUp,setIsAuth}) => {
   const [logInEmail,setLogInEmail] = useState('')
-  const [LogInPassword,setLogInPassword] = useState('')
-  const [isError,setIsError] = useState({
-    emailError:'',
-    passwordError:'',
-  })
+  const [logInPassword,setLogInPassword] = useState('')
+  const [isError,setIsError] = useState({})
+  const [isSubmit,setIsSubmit] = useState(false)
+  const [loading,setLoading] = useState(false)
+  const [authorInfo,setAuthorInfo] = useState({})
+
   const validate = (e) => {
     e.preventDefault()
-    const logInError = {
-      emailErr:'',
-      passwordErr:'',
-    };
+    const logInError = {};
+
     if(!logInEmail){
       logInError.emailErr = 'email is required';
     }
-    if(!LogInPassword){
+    if(!logInPassword){
       logInError.passwordErr = 'password is required';
     }
-    const {emailErr,passwordErr} = logInError;
-    setIsError({...isError,emailError:emailErr,passwordError:passwordErr});
+   
+    setIsError(logInError)
+    setIsSubmit(true)
     return;
   }
+
+  useEffect(()=>{
+    if(Object.keys(isError).length === 0 && isSubmit){
+      setLoading(true)
+      signInWithEmailAndPassword(
+        auth,
+        logInEmail,
+        logInPassword
+        ).then(async cred=>{
+          const authorCollectionRef = collection(db,'author');
+          const users = await getDocs(authorCollectionRef)
+          const allAuthors = users.docs.map((doc)=>({...doc.data(),id:doc.id})) 
+          const res = allAuthors.filter(doc=>{
+              return doc.userId === cred.user.uid;
+          })
+          if(res.length > 0){              
+            
+            const {displayName,photoUrl} = res[0]
+            localStorage.setItem('isAuth',true);
+            setIsAuth(true)
+            localStorage.setItem('authorName',displayName)
+            localStorage.setItem('authorProfileImage',photoUrl)
+            setAuthorInfo({
+                ...authorInfo,
+                authorName:displayName,
+                authorProfileImage:photoUrl
+              });
+          }
+            setLoading(false)
+            setIsLogIn(false)
+      }).catch(error=>{
+        console.log(error);
+      })
+    }
+
+  },[isSubmit,isError])
+
   return(
     <div className={`${modal_container}`}>
-    <div className={`absolute top-[-10%] md:w-1/2 w-full rounded-lg  shadow-2xl drop-shadow-2xl p-1 z-[100] bg-white mt-[10rem] font-sans flex justify-center`}>
+    <div
+    className={`absolute top-[-10%] md:w-1/2 w-full rounded-lg shadow-2xl drop-shadow-2xl
+     p-1 z-[100] bg-white mt-[10rem] font-sans flex justify-center`}>
    
       <div className='w-full sm:m-5 p-2'>
-        <form action="#" onSubmit={(e)=>{validate(e)}}>
+        <form action="#" >
             <div className='border-b-black border-b text-center font-bold text-lg'>LOGIN</div>
            <div className='w-full sm:m-2 mt-2'>
                 <label className='text-lg font-semibold'>
-                    <div>Email <span className='text-red-300'>*{isError.emailError}</span></div> 
-                   <input onClickCapture={(e)=>{setLogInEmail(e.target.value)}} className='border-b border-b-black  outline-none md:w-auto w-full ' type="email" placeholder='enter email' />
+                    <div>Email <span className='text-red-300'>*{isError.emailErr}</span></div> 
+                   <input onChange={(e)=>{setLogInEmail(e.target.value)}}
+                    className='border-b border-b-black  outline-none md:w-auto w-full ' type="email" placeholder='enter email' />
                 </label>
            </div>
            <div className='w-full sm:m-2'>
                 <label className='text-lg font-semibold'>
-                    <div>Password <span className='text-red-300'>*{isError.passwordError}</span></div> 
-                   <input onClickCapture={(e)=>{setLogInPassword(e.target.value)}} className='border-b border-b-black  outline-none md:w-auto w-full ' type="password" placeholder='enter password' />
+                    <div>Password <span className='text-red-300'>*{isError.passwordErr}</span></div> 
+                   <input onChange={(e)=>{setLogInPassword(e.target.value)}} className='border-b border-b-black  outline-none md:w-auto w-full ' type="password" placeholder='enter password' />
                 </label>
            </div>
-            <button className='bg-blue-500 hover:bg-blue-600 md:rounded-full hover:text-white font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>LogIn</button>
-            <p onClick={()=>{setIsLogIn(false);setIsSignUp(true)}} className='sm:mt-auto mt-2'>Don't have an account<span className='hover:text-blue-500 cursor-pointer ml-2 text-blue-900 font-semibold'>sign-Up</span></p>
+            <button onClick={(e)=>validate(e)} 
+            className='bg-blue-500 hover:bg-blue-600 md:rounded-full hover:text-white font-semibold shadow-xl
+             px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>{loading?"Loading":"LogIn"}</button>
+            <p onClick={()=>{setIsLogIn(false);setIsSignUp(true)}} className='sm:mt-auto mt-2'>
+              Don't have an account
+              <span className='hover:text-blue-500 cursor-pointer ml-2 text-blue-900 font-semibold'>sign-Up</span>
+              </p>
             <a className='text-blue-500 cursor-pointer'>Forget Password?</a>
         </form>
       </div>
