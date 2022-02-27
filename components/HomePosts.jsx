@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 const HomePosts = ({setOpenPost,showPosts,setPost}) => {
     const [posts,setShowPost] = useState([]);
     useEffect(()=>{
-        setShowPost(showPosts);
+     setShowPost(showPosts)
     },[posts,showPosts])
     
   return (

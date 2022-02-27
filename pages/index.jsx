@@ -20,25 +20,28 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const [openPost,setOpenPost] = useState(false)
   const [isAuth,setIsAuth] = useState(false);
   const [DisplayPost,setDisplayPost] = useState(null);
-  const [categorySelected,setCategorySelected] = useState([])
-  const [selecteAuthor,setSelectedAuthor] = useState([])
+  const [filterPost,setFilterPost] = useState([])
   const [flag,setFlag] = useState(false)
+
   const setPost = (postId) =>{
     setDisplayPost(postId)
     setOpenPost(true);
   }
   
   const selectedCategory = (selectedCategoryId) =>{
+    setFlag(true)
     const showCategoryPosts = showPosts.filter(post=> post.categoryId === selectedCategoryId);
-    setCategorySelected(showCategoryPosts)
+    setFilterPost(showCategoryPosts)
     setOpenPost(false);
-    setFlag(true)
   }
+  
   const selectedAuthor = (selectedAuthorId) =>{
-    const showAuthorPosts = showPosts.filter(post=> post.author.id === selectedAuthorId);
-    setSelectedAuthor(showAuthorPosts)
-    setOpenPost(false);
     setFlag(true)
+    const showAuthorPosts = showPosts.filter(post=>{
+      return  post.author.id === selectedAuthorId
+    });
+    setFilterPost(showAuthorPosts)
+    setOpenPost(false);
   }
 
   useEffect(()=>{
@@ -62,8 +65,8 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
       <SearchBarMenu selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
       {openPost?<Post isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
-      :<HomePosts setPost={setPost} showPosts={flag?categorySelected:showPosts} setOpenPost={setOpenPost}/>}
-      
+      :<HomePosts setPost={setPost} showPosts={flag?filterPost:showPosts}
+       setOpenPost={setOpenPost}/>}
       {toggleModal?<Modal showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
       
       {isLogIn?<LogIn  setIsAuth={setIsAuth} setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};

@@ -10,6 +10,7 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
   const [searchInput,setSearch] = useState('');
   const [openList,setOpenList] = useState(false);
   const [authors,setAuthors] = useState([]);
+  const [loading,setLoading] = useState(true)
   const authorRef = collection(db,'author');
   const categoryRef = collection(db,'category')
 
@@ -20,9 +21,10 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
   }
 
   useEffect(()=>{
-
+    
     if(searchInput.length > 0){
       (async()=>{
+        setLoading(true)
         const authors = await getDocs(authorRef)
         const categories = await getDocs(categoryRef)
         const allCat = categories.docs.map((doc)=>({...doc.data(),id:doc.id}))     
@@ -43,12 +45,14 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
         })
         setAuthors(filterPeople)
         setCat(filterCat)
-
+        
+        setLoading(false)
       })()
       setOpenList(true)
     }
     if(searchInput.length === 0){
       setCat([])
+      setAuthors([])
       setOpenList(false)
     }
   
@@ -64,7 +68,8 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
                 autoComplete='off'
                 aria-label='search'
                 value={searchInput}
-                className='p-[21px] h-[20px] w-[75%] sm:w-[50%] md:w-[60%] rounded-tl-[5px] rounded-bl-[5px] outline-none text-[#9DBFAF] focus:text-[#548CFF]' placeholder="Search"/>
+                className='p-[21px] h-[20px] w-[75%] sm:w-[50%] md:w-[60%] rounded-tl-[5px] rounded-bl-[5px] outline-none text-[#9DBFAF] focus:text-[#548CFF]'
+                 placeholder="Search for category,author"/>
                 <button type="submit" onClick={(e)=>searchBox(e)} className='w-[45px] pl-[11px] rounded-tr-[10px] rounded-br-[10px] text-[1.3rem] bg-[#548CFF] text-white cursor-pointer transition-all duration-300'>
                     {openList?<ImCancelCircle/>:<BsSearch/>}
                 </button>
@@ -75,7 +80,7 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
               <div className=' ml-[5px] p-[5px]  border-gray border-b-[1px] pb-2'>
               <p className='font-semibold'>Category</p>
               </div>
-          {cat.length === 0 ?<p className='ml-[5px] p-[5px]'>loading...</p>:
+          {loading?<p className='ml-[5px] p-[5px]'>loading...</p>:
             cat.map(catName=>{
               return(
                 <div key={catName.id} onClick={()=>{selectedCategory(catName.id);setOpenList(false);setSearch('')}}>
@@ -90,7 +95,7 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
               <div className=' ml-[5px] p-[5px] border-gray border-b-[1px] pb-2'>
                 <p className='font-semibold'>People</p>
               </div>
-              {authors.length === 0 ?<p className='ml-[5px] p-[5px]'>loading...</p>:
+              {loading?<p className='ml-[5px] p-[5px]'>loading...</p>:
                 authors.map(auto=>{
                   return(
                     <div key={auto.userId} onClick={()=>{selectedAuthor(auto.userId);setOpenList(false);setSearch('')}}>

@@ -6,7 +6,7 @@ import {imgUrl} from '../public/index'
 import {createUserWithEmailAndPassword} from 'firebase/auth'
 import {collection,addDoc} from 'firebase/firestore'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
-import {ref, getDownloadURL, uploadBytesResumable,uploadBytes} from 'firebase/storage'
+import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 
 const SignUp = ({setIsSignUp,setIsLogIn}) => {
   const [signUpEmail,setSignUpEmail] = useState('')

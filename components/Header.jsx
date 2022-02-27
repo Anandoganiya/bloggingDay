@@ -112,7 +112,7 @@ const SideBarMenu = (props) => {
         setIsAuth,
         authorInfo,
         showCategories,
-        selectedCategory
+        selectedCategory,
     } = props;
     return (
         // w-60 = 15rem 
@@ -129,7 +129,7 @@ const SideBarMenu = (props) => {
                             <li onClick={()=>{setFlag(false);setOpenPost(false);}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
                             {showCategories.map(cat=>{
                                 return(
-                                    <li key={cat.id} onClick={()=>{selectedCategory(cat.id)}} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
+                                    <li key={cat.id} onClick={()=>{selectedCategory(cat.id);}} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
                                 );
                             })}
                             {/* <li className='hover:cursor-pointer font-semibold'><SiStylelint className={`m-[1rem] ${category}`}/>Lifestyle</li>

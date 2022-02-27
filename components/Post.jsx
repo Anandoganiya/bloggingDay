@@ -1,6 +1,6 @@
 import {useState,useEffect} from 'react'
 import {BiArrowBack} from 'react-icons/bi'
-import {collection,setDoc,serverTimestamp, doc,updateDoc,getDoc} from 'firebase/firestore'
+import {collection,setDoc,serverTimestamp, doc,updateDoc,getDoc, getDocs} from 'firebase/firestore'
 import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
 
@@ -8,24 +8,32 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
     const [post,setPost] = useState({});
     const [getComment,setComment] = useState('');
     const postCommentDocRef =  doc(db,'post',DisplayPost);
+    const authorCollectionRef = collection(db,'author');
+    const [loading,setLoading] = useState(false);
+    const [logInUser,setLogInUser] = useState({});
 
     const postComment = async () => {
         try{
+            setLoading(true)
             const docPost = await getDoc(postCommentDocRef)
+            const authors = await getDocs(authorCollectionRef)
+            const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
+            const author = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));
             const postInfo = { 
                 comments:[
                     ...docPost.data().comments,
                     {
                         comment:getComment,
                         createdAt: new Date().toString(),
-                        userName:auth.currentUser.displayName,
-                        userPhotoUrl:auth.currentUser.photoURL,
+                        userName:author.displayName,
+                        userPhotoUrl:author.photoUrl,
                     }
                 ]
             }
             await updateDoc(postCommentDocRef,postInfo);
             const newPost = await getDoc(postCommentDocRef)
             setPost(newPost.data())
+            setLoading(false)
         }catch(err){
             console.log(err);
         }
@@ -37,6 +45,10 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
             (async()=>{
                 if(post){
                     const docPost = await getDoc(postCommentDocRef)
+                    const authors = await getDocs(authorCollectionRef)
+                    const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
+                    const author = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));
+                    setLogInUser(author)
                     setPost(docPost.data())
                 }
             })()
@@ -69,7 +81,11 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
         <article className='p-2 bg-white rounded-2xl  shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
             <h2 className='font-semibold xl:text-xl md:text-lg '>Comments</h2>
 
-            {isAuth?<UserComment postComment={postComment} setComment={setComment} post={post}/>:null}
+            {isAuth?<UserComment postComment={postComment} 
+            logInUser={logInUser}
+            loading={loading}
+            setComment={setComment}
+            post={post}/>:null}
             {
                 post?.comments?<Comments showComment={post?.comments}/>:null
             }
@@ -81,17 +97,17 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
 };
 export default Post;
 
-const UserComment = ({post,setComment,postComment}) =>{
+const UserComment = ({post,setComment,postComment,loading,logInUser}) =>{
     return(
             <div className='mt-2'>
             <div className='w-full flex' >
-                <img src={post.author?.authorPhoto} className=' w-10 h-10 rounded-full mr-4' alt="author image" />
-                <p className='mr-2 font-semibold font-sans'>{post.author?.name}</p>
+                <img src={logInUser.photoUrl} className=' w-10 h-10 rounded-full mr-4' alt="author image" />
+                <p className='mr-2 font-semibold font-sans'>{logInUser.displayName}</p>
                 <p>10:30 Aug 2022</p>
             </div>
             <div className='m-2 w-full '>
                 <textarea onChange={(e)=>{setComment(e.target.value)}} className='border  border-gray outline-none max-w-full resize-none' placeholder='add a comment' name="" id="" cols='70'></textarea>
-                <button onClick={()=>{postComment()}} className='bg-blue-300 rounded-full  outline-none block py-2 px-8 hover:bg-blue-600'>Send</button>
+                <button onClick={()=>{postComment()}} className='bg-blue-300 rounded-full  outline-none block py-2 px-8 hover:bg-blue-600'>{loading?'loading...':'Send'}</button>
             </div>
             <hr />
         </div>

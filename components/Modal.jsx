@@ -2,7 +2,7 @@ import React,{useState,useRef,useEffect} from 'react';
 import {modal_container} from '../styles/Modal.module.css'
 import {ImCross} from 'react-icons/im';
 import {AiOutlineCamera} from 'react-icons/ai';
-import {collection,addDoc,serverTimestamp} from 'firebase/firestore'
+import {collection,addDoc,serverTimestamp,getDocs} from 'firebase/firestore'
 import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
 
@@ -18,6 +18,7 @@ const Modal = ({setToggleModal,showCategories}) => {
   const [imageFile,setImageFile] = useState('');
   const [progress,setProgress] = useState(0);
   const postCollectionRef = collection(db,'post');
+  const authorCollectionRef = collection(db,'author')
 
   const handleUpload = () => {
     fileUploadRef.current.click();
@@ -81,15 +82,18 @@ const Modal = ({setToggleModal,showCategories}) => {
           setProgress(prog);
        },(error)=>{
          console.log(error);
-       }, ()=>{
+       }, async()=>{
+        const authors = await getDocs(authorCollectionRef)
+        const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
+        const authorInfo = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             addDoc(postCollectionRef,{
             title:inputTitle || null,
             content:inputDescription || null,
             author:{
-              name:auth.currentUser.displayName || null,
-              id:auth.currentUser.uid || null,
-              authorPhoto:auth.currentUser.photoURL,
+              name:authorInfo.displayName || null,
+              id:authorInfo.userId || null,
+              authorPhoto:authorInfo.photoUrl,
             },
             comments:[],
             featuredImageUrl: downloadURL,
