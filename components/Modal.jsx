@@ -83,8 +83,7 @@ const Modal = ({setToggleModal,showCategories,setPostId,setAuthorId}) => {
        },(error)=>{
          console.log(error);
        }, async()=>{
-        setPostId(null);
-        setAuthorId(null)
+       
         const authors = await getDocs(authorCollectionRef)
         const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
         const authorInfo = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));
@@ -142,7 +141,7 @@ const Modal = ({setToggleModal,showCategories,setPostId,setAuthorId}) => {
               <input ref={fileUploadRef} type='file' style={{display:'none'}} accept='image/png,image/jpeg,image/jpg'/>
             </div>
             <div className='pt-2  sm:float-right'>
-              <button disabled={loading} onClick={()=>{postData()}} className={`sm:rounded-full border-blue-600 border ${loading?'bg-[#E9E5D6] border-none':'hover:bg-[#548CFF] bg-blue-500 cursor-pointer hover:text-white'} w-full sm:w-[7rem] px-8 py-1 font-semibold`}>
+              <button disabled={loading} onClick={()=>{postData();}} className={`sm:rounded-full border-blue-600 border ${loading?'bg-[#E9E5D6] border-none':'hover:bg-[#548CFF] bg-blue-500 cursor-pointer hover:text-white'} w-full sm:w-[7rem] px-8 py-1 font-semibold`}>
                 {loading?<span>{progress}</span>:'post'}
               </button>
             </div>

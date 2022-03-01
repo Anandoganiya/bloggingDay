@@ -2,11 +2,13 @@ import {useEffect,useState} from 'react';
 import {collection,onSnapshot,query,where,orderBy,limit} from 'firebase/firestore'
 import {db} from '../firebase/firebaseConfig'
 
-const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId}) => {
+const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId,}) => {
     const [posts,setShowPost] = useState([]);
+    const [loading,setLoading] = useState(false)
 
     useEffect(()=>{
         if(postId){
+            setLoading(true)
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('categoryId','==',postId));
             let updatedPosts = []
             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
@@ -15,43 +17,52 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
                 })
                 setShowPost(updatedPosts);
             })
+            setLoading(false)
             return ()=>{
                 unsubscribe()
             }
         }
-        if(authorId){
+        else if(authorId){
+            setLoading(true)
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('author.id','==',authorId));
             let updatedPosts = []
             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
-             snap.forEach(doc=>{
-              updatedPosts.push({...doc.data(),id:doc.id})
-             })
-             setShowPost(updatedPosts);
-             })
-             return ()=>{
-              unsubscribe()
-          }
+                snap.forEach(doc=>{
+                    updatedPosts.push({...doc.data(),id:doc.id})
+                })
+                setShowPost(updatedPosts);
+            })
+            setLoading(false)
+            return ()=>{
+                unsubscribe()
+            }
         }else{
+            setLoading(true)
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10))
             let updatedPosts = []
             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
-             snap.forEach(doc=>{
-              updatedPosts.push({...doc.data(),id:doc.id})
-             })
-             setShowPost(updatedPosts);
-             })
-             return ()=>{
-              unsubscribe()
+                snap.forEach(doc=>{
+                    updatedPosts.push({...doc.data(),id:doc.id})
+                })
+                setShowPost(updatedPosts);
+            })
+            setLoading(false)
+            return ()=>{
+                unsubscribe()
           }
         }
-       
+        
     },[postId,authorId])
     
   return (
       <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
           <section>
         {
-            posts.map(post=>{
+           loading?
+           <div className='w-full flex justify-center items-center h-[30rem]'>
+            <img className='w-[4rem] h-[4rem]' src="loading.gif" alt="" srcset="" />
+           </div>
+           : posts.map(post=>{
                 return(
                     <article key={post.id} onClick={()=>{setPost(post.id)}} className=' lg:flex bg-white rounded-2xl hover:shadow-2xl shadow-sm cursor-pointer transition-all duration-300 ease-in-out font-serif mb-4'>
                         <div className='xl:flex'>

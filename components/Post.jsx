@@ -10,10 +10,11 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
     const postCommentDocRef =  doc(db,'post',DisplayPost);
     const authorCollectionRef = collection(db,'author');
     const [loading,setLoading] = useState(false);
+    const [loading2,setLoading2] = useState(false);
 
     const postComment = async () => {
         try{
-            setLoading(true)
+            setLoading2(true)
             const docPost = await getDoc(postCommentDocRef)
             const authors = await getDocs(authorCollectionRef)
             const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
@@ -32,7 +33,7 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
             await updateDoc(postCommentDocRef,postInfo);
             const newPost = await getDoc(postCommentDocRef)
             setPost(newPost.data())
-            setLoading(false)
+            setLoading2(false)
         }catch(err){
             console.log(err);
         }
@@ -43,8 +44,10 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
         try{
             (async()=>{
                 if(post){
+                    setLoading(true)
                     const docPost = await getDoc(postCommentDocRef)
                     setPost(docPost.data())
+                    setLoading(false)
                 }
             })()
         }catch(err){
@@ -55,44 +58,51 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
   return(
     <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
         <button onClick={()=>setOpenPost(false)} className='hover:text-white text-xl'><BiArrowBack/></button>
-    <section>
+        {
+            loading?
+            <div className='w-full flex justify-center items-center h-[30rem]'>
+                <img className='w-[4rem] h-[4rem]' src="loading.gif" alt="" srcset="" />
+            </div>
+            :
+            <section>
       
-                 <article className='bg-white rounded-2xl shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
-                    <div className='w-full'>
-                        <div className='w-full' >
-                            <img src={post.featuredImageUrl} alt="post image" className='h-48 w-full object-cover rounded-2xl border-4 border-white xl:h-[30rem]'/>
-                        </div>
-                        <ul className='m-2'>
-                            <li className='m-1 text-lg text-gray-600 font-semibold tracking-wide'>{post.category}</li>
-                            <li className='text-gray-900 font-bold text-xl mb-2'>{post.title}</li>
-                            <li className='text-gray-700 text-base'>{post.content}</li>
-                            <li className='mt-1 mb-1 flex justify-center'><img src={post.author?.authorPhoto} className=' w-10 h-10 rounded-full mr-4' alt="author image" /></li>
-                            <li className='flex justify-center'><p className='"text-gray-900 font-semibold font-sans'>{post.author?.name}</p></li>
-                            <li className='flex justify-center pb-2'><p className='"text-gray-900 '>10:30 Aug 2022</p></li>
-                        </ul> 
-                    </div>
-               </article>
-            
-        <article className='p-2 bg-white rounded-2xl  shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
-            <h2 className='font-semibold xl:text-xl md:text-lg '>Comments</h2>
+            <article className='bg-white rounded-2xl shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
+               <div className='w-full'>
+                   <div className='w-full' >
+                       <img src={post.featuredImageUrl} alt="post image" className='h-48 w-full object-cover rounded-2xl border-4 border-white xl:h-[30rem]'/>
+                   </div>
+                   <ul className='m-2'>
+                       <li className='m-1 text-lg text-gray-600 font-semibold tracking-wide'>{post.category}</li>
+                       <li className='text-gray-900 font-bold text-xl mb-2'>{post.title}</li>
+                       <li className='text-gray-700 text-base'>{post.content}</li>
+                       <li className='mt-1 mb-1 flex justify-center'><img src={post.author?.authorPhoto} className=' w-10 h-10 rounded-full mr-4' alt="author image" /></li>
+                       <li className='flex justify-center'><p className='"text-gray-900 font-semibold font-sans'>{post.author?.name}</p></li>
+                       <li className='flex justify-center pb-2'><p className='"text-gray-900 '>10:30 Aug 2022</p></li>
+                   </ul> 
+               </div>
+          </article>
+       
+   <article className='p-2 bg-white rounded-2xl  shadow-sm  transition-all duration-300 ease-in-out font-serif mb-4'>
+       <h2 className='font-semibold xl:text-xl md:text-lg '>Comments</h2>
 
-            {isAuth?<UserComment postComment={postComment} 
-            user={user}
-            loading={loading}
-            setComment={setComment}
-            post={post}/>:null}
-            {
-                post?.comments?<Comments showComment={post?.comments}/>:null
-            }
-         </article>
+       {isAuth?<UserComment postComment={postComment} 
+       user={user}
+       loading2={loading2}
+       setComment={setComment}
+       post={post}/>:null}
+       {
+           post?.comments?<Comments showComment={post?.comments}/>:null
+       }
+    </article>
 
-    </section>
+</section>
+        }
 </div>
   )
 };
 export default Post;
 
-const UserComment = ({post,setComment,postComment,loading,user}) =>{
+const UserComment = ({post,setComment,postComment,loading2,user}) =>{
     return(
             <div className='mt-2'>
             <div className='w-full flex' >
@@ -102,7 +112,7 @@ const UserComment = ({post,setComment,postComment,loading,user}) =>{
             </div>
             <div className='m-2 w-full '>
                 <textarea onChange={(e)=>{setComment(e.target.value)}} className='border  border-gray outline-none max-w-full resize-none' placeholder='add a comment' name="" id="" cols='70'></textarea>
-                <button onClick={()=>{postComment()}} className='bg-blue-300 rounded-full  outline-none block py-2 px-8 hover:bg-blue-600'>{loading?'loading...':'Send'}</button>
+                <button onClick={()=>{postComment()}} className='bg-blue-300 rounded-full  outline-none block py-2 px-8 hover:bg-blue-600'>{loading2?'loading...':'Send'}</button>
             </div>
             <hr />
         </div>
