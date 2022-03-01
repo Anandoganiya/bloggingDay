@@ -1,10 +1,51 @@
 import {useEffect,useState} from 'react';
+import {collection,onSnapshot,query,where,orderBy,limit} from 'firebase/firestore'
+import {db} from '../firebase/firebaseConfig'
 
-const HomePosts = ({setOpenPost,showPosts,setPost}) => {
+const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId}) => {
     const [posts,setShowPost] = useState([]);
+
     useEffect(()=>{
-     setShowPost(showPosts)
-    },[posts,showPosts])
+        if(postId){
+            const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('categoryId','==',postId));
+            let updatedPosts = []
+            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+                snap.forEach(doc=>{
+                    updatedPosts.push({...doc.data(),id:doc.id})
+                })
+                setShowPost(updatedPosts);
+            })
+            return ()=>{
+                unsubscribe()
+            }
+        }
+        if(authorId){
+            const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('author.id','==',authorId));
+            let updatedPosts = []
+            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+             snap.forEach(doc=>{
+              updatedPosts.push({...doc.data(),id:doc.id})
+             })
+             setShowPost(updatedPosts);
+             })
+             return ()=>{
+              unsubscribe()
+          }
+        }else{
+            const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10))
+            let updatedPosts = []
+            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+             snap.forEach(doc=>{
+              updatedPosts.push({...doc.data(),id:doc.id})
+             })
+             setShowPost(updatedPosts);
+             })
+             return ()=>{
+              unsubscribe()
+          }
+        }
+       
+    },[postId,authorId,posts])
     
   return (
       <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>

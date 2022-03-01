@@ -13,9 +13,15 @@ import {signInWithPopup,signOut} from 'firebase/auth'
 import moment from 'moment'
 import {db} from '../firebase/firebaseConfig'
 import {collection,addDoc,getDocs} from 'firebase/firestore'
+import {onAuthStateChanged} from 'firebase/auth'
+
 
 const Header = (props) => {
     const {
+        setAuthorId,
+        setPostId,
+        user,
+        setUser,
         setToggleModal,
         setIsLogIn,
         setIsAuth,
@@ -23,10 +29,11 @@ const Header = (props) => {
         showCategories,
         selectedCategory,
         setFlag,
-        setOpenPost
+        setOpenPost,
+        setSignInUserInfo,
+        signInUserInfo
     } = props;
     const [toggle,setToggle] = useState(false);
-    const [authorInfo,setAuthorInfo] = useState({authorName:'',authorProfileImage:''}) 
     const sideMenuRef = useRef()
     
     const signInWithGoogle = () => {
@@ -35,24 +42,37 @@ const Header = (props) => {
             setIsAuth(true)
             localStorage.setItem('authorName',userInfo.user.displayName)
             localStorage.setItem('authorProfileImage',userInfo.user.photoURL)
-            setAuthorInfo({
-                ...authorInfo,
-                authorName:userInfo.user.displayName,
-                authorProfileImage:userInfo.user.photoURL
-            });
+           
           const authorCollectionRef = collection(db,'author');
           const users = await getDocs(authorCollectionRef)
           const allAuthors = users.docs.map((doc)=>({...doc.data(),id:doc.id})) 
           const res = allAuthors.filter(doc=>{
               return doc.userId === userInfo.user.uid;
-          })
-          if(res.length === 0){              
-              addDoc(authorCollectionRef,{
-                userId:userInfo.user.uid,
-                email:userInfo.user.email,
-                displayName:userInfo.user.displayName,
-                photoUrl:userInfo.user.photoURL,
-              })
+            })
+            if(res.length === 0){              
+                addDoc(authorCollectionRef,{
+                    userId:userInfo.user.uid,
+                    email:userInfo.user.email,
+                    displayName:userInfo.user.displayName,
+                    photoUrl:userInfo.user.photoURL,
+                })
+                setuserfunction()
+            }
+            const setuserfunction = async()=>{
+                const users = await getDocs(authorCollectionRef)
+                const allAuthors = users.docs.map((doc)=>({...doc.data(),id:doc.id})) 
+                const res = allAuthors.filter(doc=>{
+                    return doc.userId === userInfo.user.uid;
+                  })
+                  if(res.length > 0){              
+                    const {displayName,photoUrl} = res[0]
+                    console.log(res[0]);
+                    setSignInUserInfo({
+                        ...signInUserInfo,
+                        authorName:displayName,
+                        authorProfileImage:photoUrl,
+            });
+           }
           }
         }).catch((error)=>{
             console.log(error);
@@ -66,16 +86,18 @@ const Header = (props) => {
     }
 
     useEffect(() => {
-        setAuthorInfo({
-            ...authorInfo,
-            authorName:localStorage.getItem('authorName'),
-            authorProfileImage:localStorage.getItem('authorProfileImage')
-        });
-        if(toggle){
-            document.body.style.overflow = 'hidden';
+        if(user){
+            setSignInUserInfo({
+                ...signInUserInfo,
+                authorName:user?.displayName,
+                authorProfileImage:user?.photoURL
+            });
+            if(toggle){
+                document.body.style.overflow = 'hidden';
+            }
+            return ()=> document.body.style.overflow = 'unset';
         }
-        return ()=> document.body.style.overflow = 'unset';
-     }, [toggle]);
+     }, [toggle,user]);
     
     return (
         <>
@@ -85,11 +107,13 @@ const Header = (props) => {
                 <span className={toggle?`${bottom_line} ${rotate_bottom}`:`${bottom_line}`}></span>
             </div>
             <SideBarMenu 
+            setAuthorId={setAuthorId}
+             setPostId={setPostId}
              setOpenPost={setOpenPost}
              setFlag={setFlag}
              selectedCategory={selectedCategory}
              showCategories={showCategories}
-             authorInfo={authorInfo}
+             signInUserInfo={signInUserInfo}
              isAuth={isAuth}
              setIsAuth={setIsAuth}
              sideMenuRef={sideMenuRef}
@@ -103,6 +127,8 @@ const Header = (props) => {
 
 const SideBarMenu = (props) => {
     const {
+        setAuthorId,
+        setPostId,
         setOpenPost,
         setFlag,
         sideMenuRef,
@@ -110,7 +136,7 @@ const SideBarMenu = (props) => {
         setIsLogIn,isAuth,
         signInWithGoogle,
         setIsAuth,
-        authorInfo,
+        signInUserInfo,
         showCategories,
         selectedCategory,
     } = props;
@@ -118,7 +144,7 @@ const SideBarMenu = (props) => {
         // w-60 = 15rem 
         <div ref={sideMenuRef} className={`${sideMenu} z-[3] sm:z-0 font-sans fixed shadow-2xl rounded-r-2xl w-60 h-screen bg-[#FAEEE7]`}>
             <div className={`p-[1rem] ${profile_info}`}>
-                {isAuth?<UserLogOut authorInfo={authorInfo} setIsAuth={setIsAuth}/>:<UserLogIn setIsLogIn={setIsLogIn} signInWithGoogle={signInWithGoogle}/>}
+                {isAuth?<UserLogOut signInUserInfo={signInUserInfo} setIsAuth={setIsAuth}/>:<UserLogIn setIsLogIn={setIsLogIn} signInWithGoogle={signInWithGoogle}/>}
             </div>
             <div className='text-lg'>
                     <ul className={`h-[29rem] overflow-y-auto ${categoriesMenu}`}>
@@ -126,7 +152,7 @@ const SideBarMenu = (props) => {
                         <button onClick={()=>{setToggleModal(true)}} className='border  border-blue-600 font-sans text-lg font-semibold px-8 py-2 transition-all duration-100 rounded-full hover:bg-[#548CFF] hover:text-white'>
                         <FaPencilAlt className='inline mr-1'/> Create Post</button></li>:null}
                         <IconContext.Provider value={{size:'2.5rem',className:`${sideMenuIconsStyles}` }}>
-                            <li onClick={()=>{setFlag(false);setOpenPost(false);}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
+                            <li onClick={()=>{setFlag(false);setOpenPost(false);setPostId(null);setAuthorId(null)}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
                             {showCategories.map(cat=>{
                                 return(
                                     <li key={cat.id} onClick={()=>{selectedCategory(cat.id);}} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
@@ -156,7 +182,7 @@ const UserLogIn = ({setIsLogIn,signInWithGoogle}) => {
     );
 }
 
-const UserLogOut = ({setIsAuth,authorInfo}) => {
+const UserLogOut = ({setIsAuth,signInUserInfo}) => {
     const userLogOut = () => {
         setIsAuth(false);
         localStorage.clear();
@@ -165,12 +191,12 @@ const UserLogOut = ({setIsAuth,authorInfo}) => {
     return (
     <>
          <div className='flex justify-between items-center'>
-            <img className="w-14 h-14 border-2 border-white rounded-full" src={authorInfo.authorProfileImage} alt="profile Image" />
+            <img className="w-14 h-14 border-2 border-white rounded-full" src={signInUserInfo.authorProfileImage} alt="profile Image" />
             <button onClick={()=>(userLogOut())} className='text-[2rem] hover:text-white cursor-pointer'><AiOutlineLogout/></button>
         </div>
         <div className='pl-[.5rem] pt-[.2rem] text-lg'>
             <div className='font-bold'>
-                {authorInfo.authorName}
+                {signInUserInfo.authorName}
             </div>
             <div className='text-sm font-semibold'>
                {moment().format('LL')}

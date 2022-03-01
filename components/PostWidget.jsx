@@ -2,9 +2,9 @@ import { useState,useEffect } from 'react';
 import {relatedPostHide} from '../styles/RelatedPostStyles.module.css'
 
 const RelatedPostWidget = ({openPost,showAllDocWidgetRelated,setPost,showPosts}) => {
-    const [relatedPost,setrelatedPost] =useState([])
+    const [relatedPost,setRelatedPost] =useState([])
     useEffect(()=>{
-        setrelatedPost(openPost?showPosts:showAllDocWidgetRelated)
+        setRelatedPost(openPost?showPosts:showAllDocWidgetRelated)
     },[showAllDocWidgetRelated,showPosts])
 
   return (

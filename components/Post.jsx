@@ -4,13 +4,12 @@ import {collection,setDoc,serverTimestamp, doc,updateDoc,getDoc, getDocs} from '
 import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
 
-const Post = ({setOpenPost,DisplayPost,isAuth}) => {
+const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
     const [post,setPost] = useState({});
     const [getComment,setComment] = useState('');
     const postCommentDocRef =  doc(db,'post',DisplayPost);
     const authorCollectionRef = collection(db,'author');
     const [loading,setLoading] = useState(false);
-    const [logInUser,setLogInUser] = useState({});
 
     const postComment = async () => {
         try{
@@ -45,17 +44,13 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
             (async()=>{
                 if(post){
                     const docPost = await getDoc(postCommentDocRef)
-                    const authors = await getDocs(authorCollectionRef)
-                    const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
-                    const author = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));
-                    setLogInUser(author)
                     setPost(docPost.data())
                 }
             })()
         }catch(err){
             console.log(err);
         }
-    },[])
+    },[DisplayPost])
 
   return(
     <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
@@ -82,7 +77,7 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
             <h2 className='font-semibold xl:text-xl md:text-lg '>Comments</h2>
 
             {isAuth?<UserComment postComment={postComment} 
-            logInUser={logInUser}
+            user={user}
             loading={loading}
             setComment={setComment}
             post={post}/>:null}
@@ -97,12 +92,12 @@ const Post = ({setOpenPost,DisplayPost,isAuth}) => {
 };
 export default Post;
 
-const UserComment = ({post,setComment,postComment,loading,logInUser}) =>{
+const UserComment = ({post,setComment,postComment,loading,user}) =>{
     return(
             <div className='mt-2'>
             <div className='w-full flex' >
-                <img src={logInUser.photoUrl} className=' w-10 h-10 rounded-full mr-4' alt="author image" />
-                <p className='mr-2 font-semibold font-sans'>{logInUser.displayName}</p>
+                <img src={user?.photoURL} className=' w-10 h-10 rounded-full mr-4' alt="author image" />
+                <p className='mr-2 font-semibold font-sans'>{user?.displayName}</p>
                 <p>10:30 Aug 2022</p>
             </div>
             <div className='m-2 w-full '>

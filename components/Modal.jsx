@@ -6,7 +6,7 @@ import {collection,addDoc,serverTimestamp,getDocs} from 'firebase/firestore'
 import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
 
-const Modal = ({setToggleModal,showCategories}) => {
+const Modal = ({setToggleModal,showCategories,setPostId,setAuthorId}) => {
   const [inputTitle,setTitle] = useState('')
   const [inputDescription,setInputDescription] = useState('')
   const [inputCategory,setCategory] = useState('')
@@ -83,6 +83,8 @@ const Modal = ({setToggleModal,showCategories}) => {
        },(error)=>{
          console.log(error);
        }, async()=>{
+        setPostId(null);
+        setAuthorId(null)
         const authors = await getDocs(authorCollectionRef)
         const allAuthors = authors.docs.map(doc=>({...doc.data(),id:doc.id}));
         const authorInfo = allAuthors.find(auto=>(auto.userId === auth.currentUser.uid));

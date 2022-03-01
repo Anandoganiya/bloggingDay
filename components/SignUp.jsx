@@ -2,8 +2,8 @@ import {useState,useRef,useEffect} from 'react';
 import {modal_container} from '../styles/Modal.module.css'
 import {ImCross} from 'react-icons/im';
 import {AiOutlineCamera} from 'react-icons/ai';
-import {imgUrl} from '../public/index'
-import {createUserWithEmailAndPassword} from 'firebase/auth'
+// import {imgUrl} from '../public/index'
+import {createUserWithEmailAndPassword,updateProfile} from 'firebase/auth'
 import {collection,addDoc} from 'firebase/firestore'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
 import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
@@ -17,13 +17,15 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
   const [isSubmit,setIsSubmit] = useState(false)
   const [isError,setIsError] = useState({})
   const [loading,setLoading] = useState(false);
-  const [cred,setData] = useState(null)
-  const handleUpload = () => {
+  // const [cred,setData] = useState(null)
+
+  const handleUpload = (e) => {
+    e.preventDefault()
     fileUploadRef.current.click();
     fileUploadRef.current.addEventListener('change',(e)=>{ 
       setImageFile(e.target.files[0]);
     })
-    return ;
+    return;
   }
 
   const validate = (e) => {
@@ -38,8 +40,8 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
     if(!signUpPassword){
       signUpError.passwordErr = 'password is required';
     }
-    if(!fileUploadRef.current.files[0]){
-      setImageFile(imgUrl)
+    if(!imageFile){
+      signUpError.imageErr = 'image is required';
     }
     setIsError(signUpError);
     setIsSubmit(true)
@@ -60,7 +62,6 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
             signUpEmail,
             signUpPassword
           ).then(cred=>{
-            setData(cred)
             uploadTask.then(()=>{
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 addDoc(authorCollectionRef,{
@@ -70,9 +71,14 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
                   displayName:userName,
                   photoUrl:downloadURL,
                 })
+                updateProfile(auth.currentUser,{
+                  displayName:userName,
+                  photoURL:downloadURL
+                }).catch(error=>{
+                  console.log(error);
+                })
               });
             })
-            
           })
           setLoading(false)
           setIsLogIn(true)
@@ -119,18 +125,24 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
                 </label>
            </div>
 
-           <div className='p-1  text-2xl flex '>
-              <button className='cursor-pointer hover:text-gray-500' onClick={()=>{handleUpload()}}>
+           <div className=' text-2xl flex '>
+              <button className='cursor-pointer hover:text-gray-500' onClick={(e)=>{handleUpload(e)}}>
                 <AiOutlineCamera/>
               </button>
-              <span className='text-lg  ml-2 lowercase inline'>{imageFile.name || 'Upload Profile'}</span>
+              <span className='lg:ml-2 text-lg font-semibold text-red-300 p-1 lg:p-0 lg:inline block mb-3'>*{isError.imageErr}</span>
               <input ref={fileUploadRef} type='file' style={{display:'none'}} accept='image/png,image/jpeg,image/jpg'/>
             </div>
+              <div className=' pb-1 '>{imageFile?.name || 'Upload Profile'}</div>
 
-
-            <button onClick={(e)=>{validate(e)}} 
+              {
+               loading?<div className='w-full sm:inline flex justify-center'><img height={40} width={40} src='spinner.gif'></img></div>:
+                <button onClick={(e)=>validate(e)} 
+                className='bg-blue-500 block hover:bg-blue-600 md:rounded-full hover:text-white
+                font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>SignUp</button>
+             }
+            {/* <button onClick={(e)=>{validate(e)}} 
             className='bg-blue-500 block hover:bg-blue-600 md:rounded-full hover:text-white
-             font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>{loading?'loading':'SignUp'}</button>
+             font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>{loading?'loading':'SignUp'}</button> */}
             <p onClick={()=>{setIsSignUp(false);setIsLogIn(true)}} className='sm:mt-auto mt-2'>Already have account<span className='hover:text-blue-500 cursor-pointer ml-2 text-blue-900 font-semibold'>Log-In</span></p>
         </form>
       </div>
