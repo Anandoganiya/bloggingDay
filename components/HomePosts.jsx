@@ -45,7 +45,7 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
           }
         }
        
-    },[postId,authorId,posts])
+    },[postId,authorId])
     
   return (
       <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>

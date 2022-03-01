@@ -5,7 +5,7 @@ import {search_list} from '../styles/SearchBar.module.css';
 import {collection,getDocs} from 'firebase/firestore'
 import {db} from '../firebase/firebaseConfig'
 
-const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
+const SearchBarMenu = ({selectedCategory,selectedAuthor,setAuthorId,setPostId}) => {
   const [cat,setCat] = useState([])
   const [searchInput,setSearch] = useState('');
   const [openList,setOpenList] = useState(false);
@@ -83,7 +83,7 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
           {loading?<p className='ml-[5px] p-[5px]'>loading...</p>:
             cat.map(catName=>{
               return(
-                <div key={catName.id} onClick={()=>{selectedCategory(catName.id);setOpenList(false);setSearch('')}}>
+                <div key={catName.id} onClick={()=>{selectedCategory(catName.id);setOpenList(false);setSearch(''); setAuthorId(null)}}>
                   <li className=' ml-[5px] p-[5px] hover:font-semibold'><a className='block' href="#">{catName.categoryName}</a></li>
                 </div>
               );
@@ -98,7 +98,7 @@ const SearchBarMenu = ({selectedCategory,selectedAuthor}) => {
               {loading?<p className='ml-[5px] p-[5px]'>loading...</p>:
                 authors.map(auto=>{
                   return(
-                    <div key={auto.userId} onClick={()=>{selectedAuthor(auto.userId);setOpenList(false);setSearch('')}}>
+                    <div key={auto.userId} onClick={()=>{selectedAuthor(auto.userId);setOpenList(false);setSearch('');setPostId(null)}}>
                       <li className=' ml-[5px] p-[5px] hover:font-semibold'><a className='block' href="#">{auto.displayName}</a></li>
                     </div>
                   );

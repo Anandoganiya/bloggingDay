@@ -79,7 +79,7 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
        setIsLogIn={setIsLogIn}
        />
        
-      <SearchBarMenu selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
+      <SearchBarMenu setPostId={setPostId}  setAuthorId={setAuthorId} selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
       {openPost?<Post user={user} isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
       :<HomePosts setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} showPosts={flag?filterPost:showPosts}
