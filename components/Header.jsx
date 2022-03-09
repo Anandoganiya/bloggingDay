@@ -12,7 +12,7 @@ import { auth,googleProvider} from '../firebase/firebaseConfig';
 import {signInWithPopup,signOut} from 'firebase/auth'
 import moment from 'moment'
 import {db} from '../firebase/firebaseConfig'
-import {collection,addDoc,getDocs} from 'firebase/firestore'
+import {collection,addDoc,getDocs,serverTimestamp,Timestamp} from 'firebase/firestore'
 import {onAuthStateChanged} from 'firebase/auth'
 
 

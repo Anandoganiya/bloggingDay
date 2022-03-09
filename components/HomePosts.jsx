@@ -1,17 +1,30 @@
 import {useEffect,useState} from 'react';
-import {collection,onSnapshot,query,where,orderBy,limit} from 'firebase/firestore'
-import {db} from '../firebase/firebaseConfig'
+import {AiFillDelete} from 'react-icons/ai'
+import moment from 'moment'
+import {collection,onSnapshot,query,where,orderBy,limit,deleteDoc,doc} from 'firebase/firestore'
+import {db,auth} from '../firebase/firebaseConfig'
 
-const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId,}) => {
+const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId,isAuth}) => {
     const [posts,setShowPost] = useState([]);
     const [loading,setLoading] = useState(false)
-
+    const [deletePostId,setDeletePostId] = useState(null)
+    
     useEffect(()=>{
+        if(deletePostId){
+            (async()=>{
+                const docRef = doc(db,'post',deletePostId)
+                await deleteDoc(docRef)
+            })();
+            setDeletePostId(null)
+            setShowPost([])
+        }
+        
         if(postId){
             setLoading(true)
+            setShowPost([])
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('categoryId','==',postId));
             let updatedPosts = []
-            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
                 snap.forEach(doc=>{
                     updatedPosts.push({...doc.data(),id:doc.id})
                 })
@@ -24,9 +37,10 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
         }
         else if(authorId){
             setLoading(true)
+            setShowPost([])
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10),where('author.id','==',authorId));
             let updatedPosts = []
-            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
                 snap.forEach(doc=>{
                     updatedPosts.push({...doc.data(),id:doc.id})
                 })
@@ -38,9 +52,10 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
             }
         }else{
             setLoading(true)
+            setShowPost([])
             const postCollectionRef = query(collection(db,'post'),orderBy('createdAt','desc'),limit(10))
             let updatedPosts = []
-            const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
+             const unsubscribe = onSnapshot(postCollectionRef,(snap)=>{
                 snap.forEach(doc=>{
                     updatedPosts.push({...doc.data(),id:doc.id})
                 })
@@ -52,7 +67,7 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
           }
         }
         
-    },[postId,authorId])
+    },[postId,authorId,deletePostId])
     
   return (
       <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>
@@ -64,8 +79,13 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
            </div>
            : posts.map(post=>{
                 return(
-                    <article key={post.id} onClick={()=>{setPost(post.id)}} className=' lg:flex bg-white rounded-2xl hover:shadow-2xl shadow-sm cursor-pointer transition-all duration-300 ease-in-out font-serif mb-4'>
-                        <div className='xl:flex'>
+                    <article key={post.id}  className=' lg:flex bg-white rounded-2xl hover:shadow-2xl shadow-sm cursor-pointer transition-all duration-300 ease-in-out font-serif mb-4'>
+                       {isAuth && post.author.id === auth.currentUser.uid && <div className='flex justify-end w-full  absolute p-4 text-[red]'>
+                            <span  onClick={()=>setDeletePostId(post.id)}>
+                                <AiFillDelete/>
+                            </span>
+                        </div> }
+                        <div className='xl:flex' onClick={()=>{setPost(post.id)}}>
                             <div className='md:shrink-0'>
                                 <img src={post.featuredImageUrl} alt="post image" className='h-48 w-full object-cover rounded-2xl border-4 border-white xl:h-full xl:w-48'/>
                             </div>
@@ -75,7 +95,7 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
                                 <li className='text-gray-700 text-base'>{post.content}</li>
                                 <li className='mt-1 mb-1'><img src={post.author.authorPhoto} className='w-10 h-10 rounded-full mr-4' alt="author image" /></li>
                                 <li><p className='"text-gray-900 font-semibold font-sans'>{post.author.name}</p></li>
-                                <li><p className='"text-gray-900'>moment</p></li>
+                                <li><p className='"text-gray-900'>{moment.utc(post.createdAt?.seconds*1000).format('LL')}</p></li>
                             </ul>
                         </div>
                     </article>

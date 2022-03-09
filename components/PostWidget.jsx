@@ -1,11 +1,13 @@
+import moment from 'moment';
 import { useState,useEffect } from 'react';
 import {relatedPostHide} from '../styles/RelatedPostStyles.module.css'
 
 const RelatedPostWidget = ({openPost,showAllDocWidgetRelated,setPost,showPosts}) => {
     const [relatedPost,setRelatedPost] =useState([])
+    const [date,setDate] = useState([])
     useEffect(()=>{
         setRelatedPost(openPost?showPosts:showAllDocWidgetRelated)
-    },[showAllDocWidgetRelated,showPosts])
+    },[showAllDocWidgetRelated,showPosts,openPost])
 
   return (
     <div className={`${relatedPostHide} absolute right-[1rem] top-[5.125rem] p-[1rem] lg:w-[19rem] xl:w-[22rem] shadow-2xl bg-white rounded-2xl`}>
@@ -18,7 +20,7 @@ const RelatedPostWidget = ({openPost,showAllDocWidgetRelated,setPost,showPosts})
                             <li key={post.id} onClick={()=>setPost(post.id)} className='flex mb-[1rem] cursor-pointer hover:bg-blue-200 '>
                                 <img src={post.featuredImageUrl} className='h-10 w-10 rounded-full' alt="related post image" />
                                 <div className='ml-[.5rem]'>
-                                    <p className='text-gray-600 font-semibold'>{new Date().getDate()}</p>
+                                    <p className='text-gray-600 font-semibold'>{moment.utc(post.createdAt.seconds*1000).format('LL')}</p>
                                     <p className='font-bold'>{post.title}</p>
                                 </div>
                             </li>

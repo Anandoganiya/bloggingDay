@@ -29,6 +29,7 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const [postId,setPostId] = useState(null);
   const [authorId,setAuthorId] = useState(null)
 
+
   onAuthStateChanged(auth,(currentUser)=>{
     setUser(currentUser)
 })
@@ -82,9 +83,9 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
       <SearchBarMenu setPostId={setPostId}  setAuthorId={setAuthorId} selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
       {openPost?<Post user={user} isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
-      :<HomePosts setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} showPosts={flag?filterPost:showPosts}
+      :<HomePosts isAuth={isAuth} setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} showPosts={flag?filterPost:showPosts}
        setOpenPost={setOpenPost}/>}
-      {toggleModal?<Modal  setPostId={setPostId} setAuthorId={setAuthorId} showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
+      {toggleModal?<Modal setPostId={setPostId} setAuthorId={setAuthorId} showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
       
       {isLogIn?<LogIn user={user} setUser={setUser}  setIsAuth={setIsAuth} setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};
       {isSignUp?<SignUp setIsSignUp={setIsSignUp} setIsLogIn={setIsLogIn}></SignUp>:null};

@@ -137,7 +137,7 @@ const Modal = ({setToggleModal,showCategories,setPostId,setAuthorId}) => {
                 <AiOutlineCamera/>
               </button>
               <span className='lg:ml-2 text-lg font-semibold text-[#FF1700] p-1 lg:p-0 lg:inline block mb-3'>*{isError.imageError}</span>
-              <span className='text-lg block lowercase'>{imageFile.name}</span>
+              <span className='text-lg block lowercase'>{imageFile?.name || ''}</span>
               <input ref={fileUploadRef} type='file' style={{display:'none'}} accept='image/png,image/jpeg,image/jpg'/>
             </div>
             <div className='pt-2  sm:float-right'>
