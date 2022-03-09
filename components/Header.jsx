@@ -107,6 +107,7 @@ const Header = (props) => {
                 <span className={toggle?`${bottom_line} ${rotate_bottom}`:`${bottom_line}`}></span>
             </div>
             <SideBarMenu 
+            toggleHamburgerMenu={toggleHamburgerMenu}
             setAuthorId={setAuthorId}
              setPostId={setPostId}
              setOpenPost={setOpenPost}
@@ -127,6 +128,7 @@ const Header = (props) => {
 
 const SideBarMenu = (props) => {
     const {
+        toggleHamburgerMenu,
         setAuthorId,
         setPostId,
         setOpenPost,
@@ -142,7 +144,7 @@ const SideBarMenu = (props) => {
     } = props;
     return (
         // w-60 = 15rem 
-        <div ref={sideMenuRef} className={`${sideMenu} z-[3] sm:z-0 font-sans fixed shadow-2xl rounded-r-2xl w-60 h-screen bg-[#FAEEE7]`}>
+        <div ref={sideMenuRef} className={`${sideMenu} z-[3] sm:z-0 font-sans fixed shadow-2xl rounded-r-2xl w-60 h-screen bg-[#fff]`}>
             <div className={`p-[1rem] ${profile_info}`}>
                 {isAuth?<UserLogOut signInUserInfo={signInUserInfo} setIsAuth={setIsAuth}/>:<UserLogIn setIsLogIn={setIsLogIn} signInWithGoogle={signInWithGoogle}/>}
             </div>
@@ -152,7 +154,7 @@ const SideBarMenu = (props) => {
                         <button onClick={()=>{setToggleModal(true)}} className='border  border-blue-600 font-sans text-lg font-semibold px-8 py-2 transition-all duration-100 rounded-full hover:bg-[#548CFF] hover:text-white'>
                         <FaPencilAlt className='inline mr-1'/> Create Post</button></li>:null}
                         <IconContext.Provider value={{size:'2.5rem',className:`${sideMenuIconsStyles}` }}>
-                            <li onClick={()=>{setFlag(false);setOpenPost(false);setPostId(null);setAuthorId(null)}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
+                            <li onClick={()=>{setFlag(false);setOpenPost(false);setPostId(null);setAuthorId(null);}} className='hover:cursor-pointer font-semibold'><AiOutlineHome className={`m-[1rem] ${category}`}/>Home</li>
                             {showCategories.map(cat=>{
                                 return(
                                     <li key={cat.id} onClick={()=>{selectedCategory(cat.id);}} className='hover:cursor-pointer font-semibold'><BsCircle className={`m-[1rem] ${category}`}/>{cat.categoryName}</li>
