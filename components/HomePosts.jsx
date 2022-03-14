@@ -3,9 +3,8 @@ import {AiFillDelete} from 'react-icons/ai'
 import moment from 'moment'
 import {collection,onSnapshot,query,where,orderBy,limit,deleteDoc,doc} from 'firebase/firestore'
 import {db,auth} from '../firebase/firebaseConfig'
-// import {imgMountain} from '../public/index'
 
-const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setAuthorId,isAuth}) => {
+const HomePosts = ({setPost,postId,authorId,isAuth}) => {
     const [posts,setShowPost] = useState([]);
     const [loading,setLoading] = useState(false)
     const [deletePostId,setDeletePostId] = useState(null)
@@ -76,7 +75,7 @@ const HomePosts = ({setOpenPost,showPosts,setPost,postId,setPostId,authorId,setA
         {
            loading ?
            <div className='w-full flex justify-center items-center h-[30rem]'>
-            <img className='w-[4rem] h-[4rem]' src="loading.gif" alt="" srcset="" />
+            <img className='w-[4rem] h-[4rem]' src="loading.gif" />
            </div>
            : posts.length > 0 ?
                 posts.map((post)=>{

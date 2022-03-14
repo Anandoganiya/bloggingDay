@@ -70,11 +70,10 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
       <SearchBarMenu setPostId={setPostId}  setAuthorId={setAuthorId} selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
       {openPost?<Post user={user} isAuth={isAuth} DisplayPostId={DisplayPostId} setOpenPost={setOpenPost}></Post>
-      :<HomePosts isAuth={isAuth} setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} 
-       setOpenPost={setOpenPost}/>}
+      :<HomePosts isAuth={isAuth} authorId={authorId}  postId={postId} setPost={setPost}/>}
       {toggleModal?<Modal setPostId={setPostId} setAuthorId={setAuthorId} showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
       
-      {isLogIn?<LogIn user={user} setUser={setUser}  setIsAuth={setIsAuth} setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};
+      {isLogIn?<LogIn setIsAuth={setIsAuth} setIsLogIn={setIsLogIn} setIsSignUp={setIsSignUp}></LogIn>:null};
       {isSignUp?<SignUp setIsSignUp={setIsSignUp} setIsLogIn={setIsLogIn}></SignUp>:null};
       
       <RelatedPostWidget 
