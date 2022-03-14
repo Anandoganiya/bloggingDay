@@ -1,15 +1,13 @@
 import {useState,useEffect} from 'react'
 import {BiArrowBack} from 'react-icons/bi'
-import {collection,setDoc,serverTimestamp, doc,updateDoc,getDoc, getDocs} from 'firebase/firestore'
-import {ref, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
-import {auth,db,firebaseStorage} from '../firebase/firebaseConfig';
+import {collection,doc,updateDoc,getDoc, getDocs} from 'firebase/firestore'
+import {auth,db} from '../firebase/firebaseConfig';
 import moment from 'moment'
 
-
-const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
+const Post = ({setOpenPost,DisplayPostId,isAuth,user}) => {
     const [post,setPost] = useState({});
     const [getComment,setComment] = useState('');
-    const postCommentDocRef =  doc(db,'post',DisplayPost);
+    const postCommentDocRef =  doc(db,'post',DisplayPostId);
     const authorCollectionRef = collection(db,'author');
     const [loading,setLoading] = useState(false);
     const [loading2,setLoading2] = useState(false);
@@ -49,7 +47,7 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
             (async()=>{
                 if(post){
                     setLoading(true)
-                    const docRef = doc(db,'post',DisplayPost)
+                    const docRef = doc(db,'post',DisplayPostId)
                     const docPost = await getDoc(docRef)
                     setPost(docPost.data())
                     setLoading(false)
@@ -58,7 +56,7 @@ const Post = ({setOpenPost,DisplayPost,isAuth,user}) => {
         }catch(err){
             console.log(err);
         }
-    },[DisplayPost])
+    },[DisplayPostId])
 
   return(
     <div className='sm:absolute mx-auto sm:left-[16rem] sm:w-[50%] w-[98%]'>

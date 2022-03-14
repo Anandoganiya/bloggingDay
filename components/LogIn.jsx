@@ -1,9 +1,8 @@
-import {useState,useRef,useEffect} from 'react';
+import {useState,useEffect} from 'react';
 import {modal_container} from '../styles/Modal.module.css'
 import {ImCross} from 'react-icons/im';
 import {signInWithEmailAndPassword} from 'firebase/auth'
-import {collection,addDoc,getDocs} from 'firebase/firestore'
-import {auth,db} from '../firebase/firebaseConfig'
+import {auth} from '../firebase/firebaseConfig'
 
 const LogIn = ({setIsLogIn,setIsSignUp,setIsAuth,user,setUser}) => {
   const [logInEmail,setLogInEmail] = useState('')
@@ -112,7 +111,7 @@ const LogIn = ({setIsLogIn,setIsSignUp,setIsAuth,user,setUser}) => {
               Don't have an account
               <span className='hover:text-blue-500 cursor-pointer ml-2 text-blue-900 font-semibold'>sign-Up</span>
               </p>
-            <a className='text-blue-500 cursor-pointer'>Forget Password?</a>
+            {/* <a className='text-blue-500 cursor-pointer'>Forget Password?</a> */}
         </form>
       </div>
 

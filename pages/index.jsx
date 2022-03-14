@@ -1,5 +1,5 @@
 import {useState,useEffect} from 'react';
-import Modal from '../components/Modal'
+import Modal from '../components/Modal';
 import LogIn from '../components/LogIn';
 import SignUp from '../components/SignUp';
 import Header from '../components/Header';
@@ -9,8 +9,7 @@ import RelatedPostWidget from '../components/PostWidget';
 import Post from '../components/Post';
 import { db,auth } from '../firebase/firebaseConfig';
 import {collection,getDocs,limit,orderBy,query} from 'firebase/firestore';
-import {onAuthStateChanged} from 'firebase/auth'
-
+import {onAuthStateChanged} from 'firebase/auth';
 
 const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const [showPosts,setAllPosts] = useState(JSON.parse(allPosts))
@@ -21,9 +20,7 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   const [toggleModal,setToggleModal] = useState(false)
   const [openPost,setOpenPost] = useState(false)
   const [isAuth,setIsAuth] = useState(false);
-  const [DisplayPost,setDisplayPost] = useState(null);
-  const [filterPost,setFilterPost] = useState([])
-  const [flag,setFlag] = useState(false)
+  const [DisplayPostId,setDisplayPost] = useState(null);
   const [signInUserInfo,setSignInUserInfo] = useState({})
   const [user,setUser] = useState({})
   const [postId,setPostId] = useState(null);
@@ -41,19 +38,11 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
   
   const selectedCategory = (selectedCategoryId) =>{
     setPostId(selectedCategoryId)
-    setFlag(true)
-    const showCategoryPosts = showPosts.filter(post=> post.categoryId === selectedCategoryId);
-    setFilterPost(showCategoryPosts)
     setOpenPost(false);
   }
   
   const selectedAuthor = (selectedAuthorId) =>{
-    setFlag(true)
     setAuthorId(selectedAuthorId)
-    const showAuthorPosts = showPosts.filter(post=>{
-      return  post.author.id === selectedAuthorId
-    });
-    setFilterPost(showAuthorPosts)
     setOpenPost(false);
   }
 
@@ -66,12 +55,10 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
       <Header
        setAuthorId={setAuthorId}
        setPostId={setPostId}
-       setUser={setUser}
        user={user}
        signInUserInfo={signInUserInfo}
        setSignInUserInfo={setSignInUserInfo}
        setOpenPost={setOpenPost}
-       setFlag={setFlag}
        selectedCategory={selectedCategory}
        showCategories={showCategories}
        setIsAuth={setIsAuth}
@@ -82,8 +69,8 @@ const Home = ({allPosts,allCategories,alldocWidgetRelated}) => {
        
       <SearchBarMenu setPostId={setPostId}  setAuthorId={setAuthorId} selectedCategory={selectedCategory} selectedAuthor={selectedAuthor}/>
       
-      {openPost?<Post user={user} isAuth={isAuth} DisplayPost={DisplayPost} setOpenPost={setOpenPost}></Post>
-      :<HomePosts isAuth={isAuth} setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} showPosts={flag?filterPost:showPosts}
+      {openPost?<Post user={user} isAuth={isAuth} DisplayPostId={DisplayPostId} setOpenPost={setOpenPost}></Post>
+      :<HomePosts isAuth={isAuth} setAuthorId={setAuthorId} authorId={authorId} setPostId={setPostId} postId={postId} setPost={setPost} 
        setOpenPost={setOpenPost}/>}
       {toggleModal?<Modal setPostId={setPostId} setAuthorId={setAuthorId} showCategories={showCategories} setToggleModal={setToggleModal}/>:null}
       

@@ -2,7 +2,6 @@ import {useState,useRef,useEffect} from 'react';
 import {modal_container} from '../styles/Modal.module.css'
 import {ImCross} from 'react-icons/im';
 import {AiOutlineCamera} from 'react-icons/ai';
-// import {imgUrl} from '../public/index'
 import {createUserWithEmailAndPassword,updateProfile} from 'firebase/auth'
 import {collection,addDoc} from 'firebase/firestore'
 import {auth,db,firebaseStorage} from '../firebase/firebaseConfig'
@@ -17,7 +16,6 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
   const [isSubmit,setIsSubmit] = useState(false)
   const [isError,setIsError] = useState({})
   const [loading,setLoading] = useState(false);
-  // const [cred,setData] = useState(null)
 
   const handleUpload = (e) => {
     e.preventDefault()
@@ -67,7 +65,7 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
                 addDoc(authorCollectionRef,{
                   userId:cred.user.uid,
                   email:signUpEmail,
-                  password:signUpPassword,
+                  // password:signUpPassword,
                   displayName:userName,
                   photoUrl:downloadURL,
                 })
@@ -133,16 +131,12 @@ const SignUp = ({setIsSignUp,setIsLogIn}) => {
               <input ref={fileUploadRef} type='file' style={{display:'none'}} accept='image/png,image/jpeg,image/jpg'/>
             </div>
               <div className=' pb-1 '>{imageFile?.name || 'Upload Profile'}</div>
-
               {
                loading?<div className='w-full sm:inline flex justify-center'><img height={40} width={40} src='spinner.gif'></img></div>:
                 <button onClick={(e)=>validate(e)} 
                 className='bg-blue-500 block hover:bg-blue-600 md:rounded-full hover:text-white
                 font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>SignUp</button>
              }
-            {/* <button onClick={(e)=>{validate(e)}} 
-            className='bg-blue-500 block hover:bg-blue-600 md:rounded-full hover:text-white
-             font-semibold shadow-xl px-8 py-2 text-center sm:m-2 mt-2 md:w-auto w-full'>{loading?'loading':'SignUp'}</button> */}
             <p onClick={()=>{setIsSignUp(false);setIsLogIn(true)}} className='sm:mt-auto mt-2'>Already have account<span className='hover:text-blue-500 cursor-pointer ml-2 text-blue-900 font-semibold'>Log-In</span></p>
         </form>
       </div>
